@@ -23,7 +23,7 @@ pipeline{
               sshagent(['tomcat-new']) {
               sh """
                  ssh root@10.32.138.27 "test -e /opt/tomcat8/webapps/myweb.war"
-                     if [ $? -eq 0 ]; then
+                     if [ {$?} -eq 0 ]; then 
                       echo "myweb.war file exist"
                       ssh root@10.32.138.27 " cp -p  /opt/tomcat8/webapps/myweb.war /opt/imp/myweb.war_`date +%F_%R`  && mv /opt/tomcat8/webapps/myweb.war /tmp "
                      fi
