@@ -14,6 +14,22 @@ pipeline{
         stage('Maven Build'){
             steps{
                 sh "mvn clean package"
+                sh "mv target/*.war target/myweb.war"
+            }
+        }
+        
+        stage('Deploy-dev'){
+            steps{
+              sshagent(['tomcat-new']) {
+              sh """
+                 scp -o StrictHostKeyChecking=no target/myweb.war root@10.32.138.27:/opt/tomcat8/webapps
+                 
+                 ssh root@10.32.138.27 /opt/tomcat8/bin/shutdown.sh
+                 
+                 ssh root@10.32.138.27 /opt/tomcat8/bin/startup.sh
+                 
+              """
+              }  
             }
         }
     }
