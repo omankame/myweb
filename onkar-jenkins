@@ -24,7 +24,7 @@ pipeline{
             steps{
              script {
                sh " echo ${FILE_EXISTS} "
-               if (${FILE_EXISTS}) {
+               if ("${FILE_EXISTS}" == "true") {
                     sshagent(['tomcat-new']) {
                     sh """
                      
