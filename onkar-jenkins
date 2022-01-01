@@ -24,7 +24,7 @@ pipeline{
             steps{
              script {
                sh " echo ${FILE_EXISTS} "
-               if (true) {
+               if (${FILE_EXISTS}) {
                     sshagent(['tomcat-new']) {
                     sh """
                      
@@ -34,8 +34,7 @@ pipeline{
                       ssh root@10.32.138.27 /opt/tomcat8/bin/startup.sh
                       """
                     }    
-                 } 
-                 if (false) {
+                 } else  {
                     sh " echo 'enter to to false' "
                     sshagent(['tomcat-new']) {   
                     sh """
