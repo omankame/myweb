@@ -35,6 +35,7 @@ pipeline{
                       """
                     }    
                  } else {
+                    sh " echo 'enter to to false' "
                     sshagent(['tomcat-new']) {   
                     sh """
                         scp -o StrictHostKeyChecking=no target/myweb.war root@10.32.138.27:/opt/tomcat8/webapps
