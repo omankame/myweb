@@ -24,7 +24,7 @@ pipeline{
             steps{
              script {
                sh " echo ${FILE_EXISTS} "
-               if ("${FILE_EXISTS}" == 0 ) {
+               if ("${FILE_EXISTS}" == "0" ) {
                     sshagent(['tomcat-new']) {
                     sh """
                      
@@ -51,6 +51,6 @@ pipeline{
 }
 
 def getStatus(){
-    def result = sh ( script: 'ssh -o StrictHostKeyChecking=no root@10.32.138.27 "stat /opt/tomcat8/webapps/myweb.war" >> /dev/null 2>&1 ', returnStatus: true)
+    def result = sh ( script: 'ssh -o StrictHostKeyChecking=no root@10.32.138.27 "stat /opt/tomcat8/webapps/myweb.war" >> /dev/null 2>&1 ', returnStdout: true)
     return result
 }
