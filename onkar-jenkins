@@ -52,5 +52,5 @@ pipeline{
 
 def getStatus(){
     def result = sh label: '', returnStdout: true, script: 'ssh -o StrictHostKeyChecking=no root@10.32.138.27  [[ -f /opt/tomcat8/webapps/myweb.war ]] && echo "File exists" || echo "File does not exist"  '
-    return result
+    return result.trim()
 }
