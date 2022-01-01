@@ -3,6 +3,7 @@ pipeline{
     agent any
     environment{
         PATH = "/opt/maven/bin:$PATH"
+        FILE_EXISTS = getStatus()
     }
     stages{
         stage('Git Checkout'){
@@ -21,25 +22,30 @@ pipeline{
         
         stage('Deploy-dev'){
             steps{
-              sshagent(['tomcat-new']) {
-              sh """
-                 ssh -o StrictHostKeyChecking=no root@10.32.138.27 "stat /opt/tomcat8/webapps/myweb.war"
-                 if $? == 0
-                 then
-                    echo "File exists" 
-                    ssh -o StrictHostKeyChecking=no  root@10.32.138.27 " cp -p /opt/tomcat8/webapps/myweb.war /opt/imp/myweb.war_`date +%F_%R` && mv /opt/tomcat8/webapps/myweb.war /tmp "
-                    scp -o StrictHostKeyChecking=no target/myweb.war root@10.32.138.27:/opt/tomcat8/webapps
-                    ssh root@10.32.138.27 /opt/tomcat8/bin/shutdown.sh
-                    ssh root@10.32.138.27 /opt/tomcat8/bin/startup.sh
-                 else
-                    echo "File does not exist"
-                    scp -o StrictHostKeyChecking=no target/myweb.war root@10.32.138.27:/opt/tomcat8/webapps
-                    ssh root@10.32.138.27 /opt/tomcat8/bin/shutdown.sh
-                    ssh root@10.32.138.27 /opt/tomcat8/bin/startup.sh
-                 fi
-              """
-              }  
+               if (FILE_EXISTS == 'true') {
+                    sshagent(['tomcat-new']) {
+                    sh """
+                      ssh -o StrictHostKeyChecking=no  root@10.32.138.27 " cp -p /opt/tomcat8/webapps/myweb.war /opt/imp/myweb.war_`date +%F_%R` && mv /opt/tomcat8/webapps/myweb.war /tmp "
+                      scp -o StrictHostKeyChecking=no target/myweb.war root@10.32.138.27:/opt/tomcat8/webapps
+                      ssh root@10.32.138.27 /opt/tomcat8/bin/shutdown.sh
+                      ssh root@10.32.138.27 /opt/tomcat8/bin/startup.sh
+                      """
+                    }    
+                 } else {
+                    sshagent(['tomcat-new']) {   
+                    sh """
+                        scp -o StrictHostKeyChecking=no target/myweb.war root@10.32.138.27:/opt/tomcat8/webapps
+                        ssh root@10.32.138.27 /opt/tomcat8/bin/shutdown.sh
+                        ssh root@10.32.138.27 /opt/tomcat8/bin/startup.sh
+                       """
+                    }
+                 }  
             }
         }
     }
+}
+
+def getStatus(){
+    def result = sh ( script: 'ssh -o StrictHostKeyChecking=no root@10.32.138.27 "stat /opt/tomcat8/webapps/myweb.war" \> /dev/null 2\>\&1 ', returnStatus: true)
+    return result
 }
